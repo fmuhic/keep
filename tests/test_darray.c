@@ -1,26 +1,73 @@
-// This define triggers the implementation in the header
-#define MY_LIB_IMPLEMENTATION
 #include "../darray.h"
-
 #include <stdio.h>
-#include <stdlib.h>
 #include <assert.h>
 
-void test_math_logic() {
-    printf("Testing my_lib_add...");
-    assert(my_lib_add(10, 5) == 15);
-    printf(" OK\n");
+DARRAY_DECLARE(int, int)
+DARRAY_INLINE(int, int)
+DARRAY_SOURCE(int, int)
 
-    printf("Testing my_lib_square...");
-    assert(my_lib_square(4) == 16);
-    printf(" OK\n");
+
+void test_int_darray_lifecycle()
+{
+    printf("[TEST] Starting int_darray lifecycle test...\n");
+
+    int_darray a = int_darray_create(&libc_allocator, 2);
+
+    assert(a.data != NULL);
+    assert(a.count == 0);
+    assert(a.capacity == 2);
+
+    printf(" - Creation OK\n");
+
+
+    int_darray_push(&a, 10);
+    int_darray_push(&a, 20);
+
+    assert(a.count == 2);
+    assert(a.data[0] == 10);
+    assert(a.data[1] == 20);
+
+    printf(" - Initial Pushes OK\n");
+
+
+    int_darray_push(&a, 30);
+
+    assert(a.count == 3);
+    assert(a.capacity == 3);
+    assert(a.data[2] == 30);
+
+    printf(" - Resize OK (New capacity: %d)\n", a.capacity);
+
+
+    int val = int_darray_pop(&a);
+
+    assert(val == 30);
+    assert(a.count == 2);
+
+    printf(" - Pop OK\n");
+
+
+    int_darray_clear(&a);
+
+    assert(a.count == 0);
+    assert(a.capacity == 3);
+
+    printf(" - Clear OK\n");
+
+
+    int_darray_free(&a);
+
+    assert(a.data == NULL);
+    assert(a.count == 0);
+    assert(a.capacity == 0);
+
+    printf(" - Free OK\n");
 }
 
-int main() {
-    printf("Starting Unit Tests...\n");
-    
-    test_math_logic();
-    
-    printf("\nAll tests passed successfully!\n");
-    return EXIT_SUCCESS;
+
+int main()
+{
+    test_int_darray_lifecycle();
+    printf("\n--- All tests passed ---\n");
+    return 0;
 }
